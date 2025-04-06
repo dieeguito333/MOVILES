@@ -22,6 +22,10 @@ export default function MovieForm({
   const [currentRating, setCurrentRating] = useState(initialValues.rating || 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleRatingChange = (rating) => {
+    setCurrentRating(rating);
+  };
+
   const handleSubmit = async (values) => {
     if (!image && !isEdit) {
       Alert.alert('Error', 'Por favor selecciona una imagen');
@@ -33,9 +37,8 @@ export default function MovieForm({
       await onSubmit({
         ...values,
         image,
-        rating: currentRating // Usamos el estado actual del rating
+        rating: currentRating
       });
-      // Resetear solo si no es edición
       if (!isEdit) {
         setImage(null);
         setCurrentRating(0);
@@ -68,39 +71,43 @@ export default function MovieForm({
             
             <Input
               placeholder="Título"
-              leftIcon={{ type: 'material-community', name: 'format-title', color: theme.colors.grey4 }}
+              leftIcon={{ type: 'material-community', name: 'format-title', color: '#000000' }}
               onChangeText={handleChange('title')}
               onBlur={handleBlur('title')}
               value={values.title}
               errorMessage={touched.title && errors.title}
+              inputStyle={styles.blackText}
+              labelStyle={styles.blackText}
             />
             
             <Input
               placeholder="Sinopsis"
-              leftIcon={{ type: 'material-community', name: 'text', color: theme.colors.grey4 }}
+              leftIcon={{ type: 'material-community', name: 'text', color: '#000000' }}
               onChangeText={handleChange('synopsis')}
               onBlur={handleBlur('synopsis')}
               value={values.synopsis}
               errorMessage={touched.synopsis && errors.synopsis}
               multiline
               numberOfLines={4}
+              inputStyle={styles.blackText}
+              labelStyle={styles.blackText}
             />
             
             <View style={styles.ratingSection}>
-              <Text style={[styles.ratingLabel, { color: theme.colors.grey5 }]}>Calificación:</Text>
+              <Text style={[styles.ratingLabel, styles.blackText]}>Calificación:</Text>
               <View style={styles.ratingContainer}>
                 <Rating
                   type="star"
                   ratingCount={5}
                   imageSize={40}
                   startingValue={currentRating}
-                  onFinishRating={(value) => {
-                    setCurrentRating(value); // Actualizamos el estado al cambiar
-                  }}
-                  fractions={1} // Permite medios puntos
+                  onFinishRating={handleRatingChange}
+                  fractions={1}
                   tintColor={theme.colors.background}
+                  ratingColor="#FFD700"
+                  ratingBackgroundColor="#c8c7c8"
                 />
-                <Text style={[styles.ratingText, { color: theme.colors.primary }]}>
+                <Text style={[styles.ratingText, styles.blackText]}>
                   {currentRating.toFixed(1)}/5
                 </Text>
               </View>
@@ -152,11 +159,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 10,
   },
   ratingText: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginLeft: 10,
   },
   buttonGroup: {
     flexDirection: 'row',
@@ -170,5 +177,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     marginHorizontal: 5,
+  },
+  blackText: {
+    color: '#000000',
   },
 });

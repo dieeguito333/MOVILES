@@ -235,17 +235,17 @@ export const MovieProvider = ({ children }) => {
         id: Date.now().toString(),
         createdAt: new Date().toISOString(),
         reviews: [],
-        rating: movie.rating || 0, // Asegurarse que siempre tenga rating
+        rating: movie.rating || 0,
       };
       
       const updatedMovies = [...movies, newMovie];
       setMovies(updatedMovies);
       setFilteredMovies(updatedMovies);
       await saveMovies(updatedMovies);
-      return newMovie; // Retornar la película creada
+      return newMovie; 
     } catch (error) {
       console.error('Error adding movie:', error);
-      throw error; // Relanzar el error para manejarlo en el componente
+      throw error;
     }
   };
 
@@ -280,11 +280,38 @@ export const MovieProvider = ({ children }) => {
       }
       return movie;
     });
+    
     setMovies(updatedMovies);
     setFilteredMovies(updatedMovies);
     await saveMovies(updatedMovies);
   };
-
+  
+  const updateReview = async (movieId, reviewId, updatedReview) => {
+    const updatedMovies = movies.map(movie => {
+      if (movie.id === movieId) {
+        return {
+          ...movie,
+          reviews: movie.reviews.map(review => {
+            if (review.id === reviewId) {
+              return {
+                ...review,
+                text: updatedReview.text,
+                rating: updatedReview.rating,
+                updatedAt: new Date().toISOString(),
+              };
+            }
+            return review;
+          }),
+        };
+      }
+      return movie;
+    });
+    
+    setMovies(updatedMovies);
+    setFilteredMovies(updatedMovies);
+    await saveMovies(updatedMovies);
+  };
+  
   const deleteReview = async (movieId, reviewId) => {
     const updatedMovies = movies.map(movie => {
       if (movie.id === movieId) {
@@ -295,6 +322,7 @@ export const MovieProvider = ({ children }) => {
       }
       return movie;
     });
+    
     setMovies(updatedMovies);
     setFilteredMovies(updatedMovies);
     await saveMovies(updatedMovies);
@@ -346,6 +374,7 @@ export const MovieProvider = ({ children }) => {
         updateMovie,
         deleteMovie,
         addReview,
+        updateReview,
         deleteReview,
         filterMovies,
         loadMovies
