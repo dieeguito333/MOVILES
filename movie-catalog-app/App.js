@@ -13,7 +13,7 @@ export default function App() {
       <ThemeProvider theme={theme}>
         <AuthProvider>
           <MovieProvider>
-            <StatusBar style="auto" />
+            <StatusBar style="light" />
             <AppNavigator />
           </MovieProvider>
         </AuthProvider>

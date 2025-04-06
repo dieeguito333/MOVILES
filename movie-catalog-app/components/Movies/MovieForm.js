@@ -9,41 +9,56 @@ import { useTheme } from '@rneui/themed';
 const MovieSchema = Yup.object().shape({
   title: Yup.string().required('El título es requerido'),
   synopsis: Yup.string().required('La sinopsis es requerida'),
-  rating: Yup.number()
-    .min(0, 'La calificación mínima es 0')
-    .max(5, 'La calificación máxima es 5')
-    .required('La calificación es requerida'),
 });
 
 export default function MovieForm({ 
-  initialValues, 
+  initialValues = {}, 
   onSubmit, 
   onCancel,
   isEdit = false 
 }) {
   const { theme } = useTheme();
-  const [image, setImage] = useState(initialValues?.image || null);
+  const [image, setImage] = useState(initialValues.image || null);
+  const [currentRating, setCurrentRating] = useState(initialValues.rating || 0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     if (!image && !isEdit) {
       Alert.alert('Error', 'Por favor selecciona una imagen');
       return;
     }
-    onSubmit({ ...values, image });
+
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        ...values,
+        image,
+        rating: currentRating // Usamos el estado actual del rating
+      });
+      // Resetear solo si no es edición
+      if (!isEdit) {
+        setImage(null);
+        setCurrentRating(0);
+      }
+    } catch (error) {
+      console.error('Error submitting movie:', error);
+      Alert.alert('Error', 'No se pudo guardar la película');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Formik
         initialValues={{
-          title: initialValues?.title || '',
-          synopsis: initialValues?.synopsis || '',
-          rating: initialValues?.rating || 0,
+          title: initialValues.title || '',
+          synopsis: initialValues.synopsis || '',
         }}
         validationSchema={MovieSchema}
         onSubmit={handleSubmit}
       >
-        {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
           <View style={styles.formContainer}>
             <ImagePicker 
               image={image} 
@@ -71,21 +86,24 @@ export default function MovieForm({
               numberOfLines={4}
             />
             
-            <View style={styles.ratingContainer}>
+            <View style={styles.ratingSection}>
               <Text style={[styles.ratingLabel, { color: theme.colors.grey5 }]}>Calificación:</Text>
-              <Rating
-                type="star"
-                ratingCount={5}
-                imageSize={30}
-                startingValue={values.rating}
-                onFinishRating={(value) => setFieldValue('rating', value)}
-                style={styles.rating}
-              />
-              {touched.rating && errors.rating && (
-                <Text style={[styles.errorText, { color: theme.colors.error }]}>
-                  {errors.rating}
+              <View style={styles.ratingContainer}>
+                <Rating
+                  type="star"
+                  ratingCount={5}
+                  imageSize={40}
+                  startingValue={currentRating}
+                  onFinishRating={(value) => {
+                    setCurrentRating(value); // Actualizamos el estado al cambiar
+                  }}
+                  fractions={1} // Permite medios puntos
+                  tintColor={theme.colors.background}
+                />
+                <Text style={[styles.ratingText, { color: theme.colors.primary }]}>
+                  {currentRating.toFixed(1)}/5
                 </Text>
-              )}
+              </View>
             </View>
             
             <View style={styles.buttonGroup}>
@@ -96,12 +114,15 @@ export default function MovieForm({
                 buttonStyle={[styles.button, { borderColor: theme.colors.primary }]}
                 titleStyle={{ color: theme.colors.primary }}
                 containerStyle={styles.buttonContainer}
+                disabled={isSubmitting}
               />
               <Button
                 title={isEdit ? 'Actualizar' : 'Guardar'}
                 onPress={handleSubmit}
-                buttonStyle={styles.button}
+                buttonStyle={[styles.button, { backgroundColor: theme.colors.primary }]}
                 containerStyle={styles.buttonContainer}
+                loading={isSubmitting}
+                disabled={isSubmitting}
               />
             </View>
           </View>
@@ -119,28 +140,32 @@ const styles = StyleSheet.create({
   formContainer: {
     paddingBottom: 20,
   },
-  ratingContainer: {
-    paddingHorizontal: 10,
+  ratingSection: {
     marginBottom: 20,
+    paddingHorizontal: 10,
   },
   ratingLabel: {
     fontSize: 16,
     marginBottom: 10,
   },
-  rating: {
-    alignSelf: 'flex-start',
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  errorText: {
-    fontSize: 12,
-    marginTop: 5,
+  ratingText: {
+    fontSize: 18,
+    fontWeight: 'bold',
     marginLeft: 10,
   },
   buttonGroup: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 20,
   },
   button: {
     borderRadius: 8,
+    paddingVertical: 12,
   },
   buttonContainer: {
     flex: 1,

@@ -6,11 +6,16 @@ import { useTheme } from '@rneui/themed';
 
 export default function AddMovieScreen({ navigation }) {
   const { addMovie } = useContext(MovieContext);
-  const { theme } = useTheme();
 
   const handleSubmit = async (movie) => {
-    await addMovie(movie);
-    navigation.goBack();
+    try {
+      const newMovie = await addMovie(movie);
+      if (newMovie) {
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error('Error adding movie:', error);
+    }
   };
 
   return (

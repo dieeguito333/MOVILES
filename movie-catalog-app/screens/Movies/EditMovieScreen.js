@@ -1,14 +1,11 @@
-import React, { useContext } from 'react';
-import { StyleSheet } from 'react-native';
+import React from 'react';
 import MovieForm from '../../components/Movies/MovieForm';
-import { MovieContext } from '../../contexts/MovieContext';
 
 export default function EditMovieScreen({ route, navigation }) {
   const { movie } = route.params;
-  const { updateMovie } = useContext(MovieContext);
 
-  const handleSubmit = async (updatedMovie) => {
-    await updateMovie(movie.id, updatedMovie);
+  const handleSubmit = (updatedMovie) => {
+    // La lógica de actualización se manejará en el componente que usa este screen
     navigation.goBack();
   };
 
@@ -21,5 +18,3 @@ export default function EditMovieScreen({ route, navigation }) {
     />
   );
 }
-
-const styles = StyleSheet.create({});

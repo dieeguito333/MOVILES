@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, KeyboardAvoidingView, Platform } from 'react-native';
 import { Input, Button } from '@rneui/themed';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -20,7 +20,7 @@ export default function LoginScreen({ navigation }) {
     try {
       const success = await login(values.email, values.password);
       if (!success) {
-        setError('Credenciales inválidas');
+        setError('Credenciales incorrectas');
       }
     } catch (err) {
       setError('Ocurrió un error al iniciar sesión');
@@ -28,66 +28,82 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text style={[styles.title, { color: theme.colors.onBackground }]}>Iniciar Sesión</Text>
-      
-      <Formik
-        initialValues={{ email: '', password: '' }}
-        validationSchema={LoginSchema}
-        onSubmit={handleLogin}
-      >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View style={styles.formContainer}>
-            <Input
-              placeholder="Email"
-              leftIcon={{ type: 'material-community', name: 'email', color: theme.colors.grey4 }}
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              value={values.email}
-              errorMessage={touched.email && errors.email}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            
-            <Input
-              placeholder="Contraseña"
-              leftIcon={{ type: 'material-community', name: 'lock', color: theme.colors.grey4 }}
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              value={values.password}
-              errorMessage={touched.password && errors.password}
-              secureTextEntry
-            />
-            
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            
-            <Button
-              title="Iniciar Sesión"
-              onPress={handleSubmit}
-              containerStyle={styles.buttonContainer}
-              loading={false}
-            />
-            
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={[styles.linkText, { color: theme.colors.primary }]}>
-                ¿No tienes cuenta? Regístrate
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </Formik>
-    </View>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
+      <View style={styles.innerContainer}>
+        <Text style={[styles.title, { color: theme.colors.primary }]}>CinePlus</Text>
+        
+        <Formik
+          initialValues={{ email: '', password: '' }}
+          validationSchema={LoginSchema}
+          onSubmit={handleLogin}
+        >
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+            <View style={styles.formContainer}>
+              <Input
+                placeholder="Email"
+                leftIcon={{ type: 'material-community', name: 'email', color: theme.colors.grey3 }}
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                value={values.email}
+                errorMessage={touched.email && errors.email}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                inputStyle={{ color: theme.colors.onBackground }}
+                placeholderTextColor={theme.colors.grey4}
+              />
+              
+              <Input
+                placeholder="Contraseña"
+                leftIcon={{ type: 'material-community', name: 'lock', color: theme.colors.grey3 }}
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+                value={values.password}
+                errorMessage={touched.password && errors.password}
+                secureTextEntry
+                inputStyle={{ color: theme.colors.onBackground }}
+                placeholderTextColor={theme.colors.grey4}
+              />
+              
+              {error ? <Text style={[styles.errorText, { color: theme.colors.error }]}>{error}</Text> : null}
+              
+              <Button
+                title="Iniciar Sesión"
+                onPress={handleSubmit}
+                buttonStyle={[styles.button, { backgroundColor: theme.colors.primary }]}
+                titleStyle={{ color: theme.colors.onPrimary }}
+                containerStyle={styles.buttonContainer}
+              />
+              
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('Register')}
+                style={styles.linkContainer}
+              >
+                <Text style={[styles.linkText, { color: theme.colors.primary }]}>
+                  ¿No tienes cuenta? Regístrate
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </Formik>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+  },
+  innerContainer: {
+    flex: 1,
     justifyContent: 'center',
+    padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 30,
     textAlign: 'center',
@@ -95,17 +111,25 @@ const styles = StyleSheet.create({
   formContainer: {
     width: '100%',
   },
+  button: {
+    borderRadius: 10,
+    paddingVertical: 12,
+  },
   buttonContainer: {
     marginTop: 20,
+    width: '100%',
+  },
+  linkContainer: {
+    marginTop: 20,
+    alignItems: 'center',
   },
   linkText: {
-    marginTop: 15,
-    textAlign: 'center',
     fontWeight: 'bold',
+    fontSize: 14,
   },
   errorText: {
-    color: 'red',
     textAlign: 'center',
     marginBottom: 10,
+    fontSize: 14,
   },
 });

@@ -1,68 +1,83 @@
 import React from 'react';
-import { View, StyleSheet, TextInput, Button } from 'react-native';
-import { Rating } from '@rneui/themed';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Rating, Icon } from '@rneui/themed';
 import { useTheme } from '@rneui/themed';
 
-export default function ReviewForm({ onSubmit }) {
-  const [rating, setRating] = useState(3);
-  const [text, setText] = useState('');
+export default function ReviewItem({ review, onDelete }) {
   const { theme } = useTheme();
-
-  const handleSubmit = () => {
-    if (text.trim()) {
-      onSubmit({ text, rating });
-      setText('');
-      setRating(3);
-    }
-  };
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.grey1 }]}>
-      <Rating
-        type="star"
-        startingValue={rating}
-        imageSize={30}
-        onFinishRating={setRating}
-        style={styles.rating}
-      />
-      <TextInput
-        placeholder="Escribe tu reseña..."
-        value={text}
-        onChangeText={setText}
-        multiline
-        numberOfLines={4}
-        style={[
-          styles.input, 
-          { 
-            backgroundColor: theme.colors.background,
-            color: theme.colors.onBackground,
-            borderColor: theme.colors.grey3,
-          }
-        ]}
-      />
-      <Button
-        title="Enviar reseña"
-        onPress={handleSubmit}
-        color={theme.colors.primary}
-      />
+    <View style={[
+      styles.container, 
+      { 
+        backgroundColor: theme.colors.grey0,
+        borderColor: theme.colors.grey2,
+      }
+    ]}>
+      <View style={styles.header}>
+        <Rating
+          type="star"
+          readonly
+          startingValue={review.rating}
+          imageSize={15}
+          style={styles.rating}
+        />
+        <Text style={[styles.date, { color: theme.colors.grey5 }]}>
+          {new Date(review.createdAt).toLocaleDateString()}
+        </Text>
+        <TouchableOpacity onPress={onDelete}>
+          <Icon 
+            type="material-community" 
+            name="delete" 
+            size={20} 
+            color={theme.colors.error} 
+          />
+        </TouchableOpacity>
+      </View>
+      
+      <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+        <Text 
+          style={[styles.text, { color: theme.colors.onBackground }]} 
+          numberOfLines={expanded ? undefined : 2}
+        >
+          {review.text}
+        </Text>
+        {!expanded && (
+          <Text style={[styles.moreText, { color: theme.colors.primary }]}>
+            Leer más...
+          </Text>
+        )}
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 15,
     borderRadius: 8,
-    marginBottom: 20,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 1,
   },
-  rating: {
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 10,
   },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
-    textAlignVertical: 'top',
+  rating: {
+    marginRight: 10,
+  },
+  date: {
+    fontSize: 12,
+    flex: 1,
+  },
+  text: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  moreText: {
+    fontSize: 12,
+    marginTop: 5,
   },
 });

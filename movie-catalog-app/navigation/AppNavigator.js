@@ -5,8 +5,38 @@ import { AuthContext } from '../contexts/AuthContext';
 import AuthStack from './AuthStack';
 import MainTabNavigator from './MainTabNavigator';
 import LoadingScreen from '../screens/Auth/LoadingScreen';
+import DetailScreen from '../screens/Movies/DetailScreen';
+import EditMovieScreen from '../screens/Movies/EditMovieScreen';
 
-const Stack = createNativeStackNavigator();
+const RootStack = createNativeStackNavigator();
+
+function MoviesStack() {
+  return (
+    <RootStack.Navigator>
+      <RootStack.Screen 
+        name="MainTabs" 
+        component={MainTabNavigator} 
+        options={{ headerShown: false }} 
+      />
+      <RootStack.Screen 
+        name="Detail" 
+        component={DetailScreen}
+        options={({ route }) => ({ 
+          title: route.params.movie.title,
+          headerBackTitle: 'Atrás'
+        })}
+      />
+      <RootStack.Screen 
+        name="EditMovie" 
+        component={EditMovieScreen}
+        options={{ 
+          title: 'Editar Película',
+          headerBackTitle: 'Atrás'
+        }}
+      />
+    </RootStack.Navigator>
+  );
+}
 
 export default function AppNavigator() {
   const { userToken, isLoading } = useContext(AuthContext);
@@ -17,13 +47,13 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {userToken ? (
-          <Stack.Screen name="Main" component={MainTabNavigator} />
+          <RootStack.Screen name="App" component={MoviesStack} />
         ) : (
-          <Stack.Screen name="Auth" component={AuthStack} />
+          <RootStack.Screen name="Auth" component={AuthStack} />
         )}
-      </Stack.Navigator>
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 }
