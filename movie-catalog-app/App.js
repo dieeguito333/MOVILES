@@ -1,6 +1,7 @@
 import React from 'react';
 import { ThemeProvider } from '@rneui/themed';
 import { AuthProvider } from './contexts/AuthContext';
+import { MovieProvider } from './contexts/MovieContext';
 import AppNavigator from './navigation/AppNavigator';
 import { theme } from './styles/theme';
 import { StatusBar } from 'expo-status-bar';
@@ -11,8 +12,10 @@ export default function App() {
     <SafeAreaProvider>
       <ThemeProvider theme={theme}>
         <AuthProvider>
-          <StatusBar style="auto" />
-          <AppNavigator />
+          <MovieProvider>
+            <StatusBar style="auto" />
+            <AppNavigator />
+          </MovieProvider>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
