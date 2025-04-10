@@ -1,6 +1,6 @@
 export default {
   colors: {
-    // Colores oscuros modernos
+  
     primary: '#BB86FC',  // Morado moderno
     primaryVariant: '#3700B3',
     secondary: '#03DAC6',  // Turquesa
@@ -66,5 +66,5 @@ export default {
       elevation: 5,
     },
   },
-  // Añade más personalizaciones según necesites
+
 };
